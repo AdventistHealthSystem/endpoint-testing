@@ -1,0 +1,8 @@
+# Files
+.DS_Store
+cache.properties
+
+# Folders
+vendor/
+build/*
+!build/phpunit.xml
