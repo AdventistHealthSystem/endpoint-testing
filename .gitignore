@@ -1,6 +1,8 @@
 # Files
 .DS_Store
 cache.properties
+composer.lock
+composer.phar
 
 # Folders
 vendor/
