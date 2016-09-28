@@ -13,7 +13,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $path = 'some path';
         $sut = $this->getMockBuilder('\EndpointTesting\Log\File')
             ->disableOriginalConstructor()
-            ->setMethods(['setPath'])
+            ->setMethods(['setPath', 'setFileAdapter'])
             ->getMock();
         $sut->expects($this->once())
             ->method('setPath')
@@ -28,7 +28,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $path = __FILE__;
         $sut = $this->getMockBuilder('\EndpointTesting\Log\File')
             ->disableOriginalConstructor()
-            ->setMethods(['validatePath'])
+            ->setMethods(['validatePath', 'setFileAdapter'])
             ->getMock();
 
         $sut->expects($this->once())
@@ -49,7 +49,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         $expected = 'some path';
         $sut = $this->getMockBuilder('\EndpointTesting\Log\File')
-            ->setMethods(['validatePath'])
+            ->setMethods(['validatePath', 'setFileAdapter'])
             ->getMock();
 
         $property = new \ReflectionProperty('\EndpointTesting\Log\File', 'path');
@@ -65,7 +65,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $path = __FILE__;
         $expected = file($path);
         $sut = $this->getMockBuilder('\EndpointTesting\Log\File')
-            ->setMethods(['getPath'])
+            ->setMethods(['getPath', 'setFileAdapter'])
             ->getMock();
 
         $sut->expects($this->once())
@@ -117,7 +117,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     public function testIsValidPath($expected, $path = '')
     {
         $sut = $this->getMockBuilder('\EndpointTesting\Log\File')
-            ->setMethods(['validatePath'])
+            ->setMethods(['validatePath', 'setFileAdapter'])
             ->getMock();
 
         $result = $sut->isValidPath($path);

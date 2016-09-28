@@ -5,12 +5,42 @@ namespace EndpointTesting\Log;
 class File
 {
     const ERR_BAD_PATH = 'The path [%s] is invalid.';
+    const ERR_ADAPTER_NOT_SET = 'The adapter is not set for this file';
 
     protected $path;
+    protected $adapter;
 
     public function __construct($path = '')
     {
         $this->setPath($path);
+        $this->setFileAdapter();
+    }
+
+    public function setFileAdapter()
+    {
+        $factory = $this->getFileAdapterFactory();
+        $lines = $this->getLines();
+        $this->adapter = $factory->factory($lines);
+    }
+
+    public function getAdapter()
+    {
+        return $this->adapter;
+    }
+
+    public function getFileAdapterFactory()
+    {
+        return new File\AdapterFactory;
+    }
+
+    public function getPattern()
+    {
+        $adapter = $this->getAdapter();
+        if (! $adapter) {
+            throw new Exception(self::ERR_ADAPTER_NOT_SET);
+        }
+
+        return $adapter->getPattern();
     }
 
     public function setPath($path)
