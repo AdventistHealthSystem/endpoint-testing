@@ -8,14 +8,27 @@ use EndpointTesting\Log\Exception;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
+
+    public function testConstructor()
+    {
+        $sut = new \EndpointTesting\Log\Parser;
+        $file = $this->getMockBuilder('\EndpointTesting\Log\File')
+            ->setMethods(['getLines', 'validatePath', 'getAdapter'])
+            ->getMock();
+
+        $sut->__construct($file);
+    }
+
     /**
      * Tests the EndpointTesting\Log\Parser::getUrls method
      * @dataProvider provideGetUrls
      */
     public function testGetUrls($expected)
     {
-        $sut = new \EndpointTesting\Log\Parser;
         $adapter = new \EndpointTesting\Log\File\Adapter\Iis;
+        $sut = $this->getMockBuilder('\EndpointTesting\Log\Parser')
+            ->setMethods(['getUrl'])
+            ->getMock();
         $file = $this->getMockBuilder('\EndpointTesting\Log\File')
             ->setMethods(['getLines', 'validatePath', 'getAdapter'])
             ->getMock();
@@ -28,6 +41,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             ->method('getAdapter')
             ->will($this->returnValue($adapter));
 
+        $sut->expects($this->exactly(count($expected)))
+            ->method('getUrl')
+            ->will($this->returnValue($expected[0]));
+
         $result = $sut->getUrls($file);
         $this->assertEquals($expected, $result);
     }
@@ -36,7 +53,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     {
         return [
             'simple test' => [
-                'expected' => [],
+                'expected' => ['value'],
             ],
         ];
     }
@@ -78,6 +95,42 @@ class ParserTest extends \PHPUnit_Framework_TestCase
                 'pattern' => \EndpointTesting\Log\File\Adapter\Apache::REGEX_PATTERN,
                 'line' => '127.0.0.1 - - [23/May/2016:09:55:10 -0400] "GET /plugins/fancybox/source/jquery.fancybox.css?v=2.1.5 HTTP/1.1" 403 314'
             ],
+
+            'expect nothing' => [
+                'expected' => null,
+                'pattern' => \EndpointTesting\Log\File\Adapter\Apache::REGEX_PATTERN,
+                'line' => 'arbitrary line, that would not find anything',
+            ],
         ];
+    }
+
+    public function testSetFile()
+    {
+        $sut = new \EndpointTesting\Log\Parser;
+        $file = $this->getMockBuilder('\EndpointTesting\Log\File')
+            ->setMethods(['setPath', 'setFileAdapter'])
+            ->getMock();
+
+        $result = $sut->setFile($file);
+        $this->assertEquals($sut, $result);
+
+        $property = new \ReflectionProperty('\EndpointTesting\Log\Parser', 'file');
+        $property->setAccessible(true);
+        $result = $property->getValue($sut);
+
+        $this->assertEquals($file, $result);
+    }
+
+    public function testGetFile()
+    {
+        $sut = new \EndpointTesting\Log\Parser;
+        $file = 'some file object';
+
+        $property = new \ReflectionProperty('\EndpointTesting\Log\Parser', 'file');
+        $property->setAccessible(true);
+        $result = $property->setValue($sut, $file);
+
+        $result = $sut->getFile($file);
+        $this->assertEquals($file, $result);
     }
 }

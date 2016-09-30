@@ -132,4 +132,57 @@ class FileTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testGetAdapter()
+    {
+        $expected = 'Expected value';
+        $sut = $this->getMockBuilder('\EndpointTesting\Log\File')
+            ->setMethods(['validatePath', 'setFileAdapter'])
+            ->getMock();
+
+        $property = new \ReflectionProperty('\EndpointTesting\Log\File', 'adapter');
+        $property->setAccessible(true);
+        $property->setValue($sut, $expected);
+
+        $result = $sut->getAdapter();
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Tests the \EndpointTesting\Log\File::getPattern method
+     * @dataProvider provideGetPattern
+     */
+    public function testGetPattern($expected, $exception = null)
+    {
+        $adapter = null;
+        if ($exception) {
+            $this->expectException($exception);
+        } else {
+            $adapter = $this->getMockBuilder('\EndpointTesting\Log\File\Adapter\Iis')
+                ->setMethods(['getPattern'])
+                ->getMock();
+            $adapter->expects($this->once())
+                ->method('getPattern')
+                ->will($this->returnValue($expected));
+        }
+
+        $sut = $this->getMockBuilder('\EndpointTesting\Log\File')
+            ->setMethods(['validatePath', 'setFileAdapter', 'getAdapter'])
+            ->getMock();
+
+        $sut->expects($this->once())
+            ->method('getAdapter')
+            ->will($this->returnValue($adapter));
+
+        $result = $sut->getPattern();
+        $this->assertEquals($expected, $result);
+    }
+
+    public function provideGetPattern()
+    {
+        return [
+            ['expected', null],
+            ['', '\EndpointTesting\Log\Exception'],
+        ];
+    }
+
 }

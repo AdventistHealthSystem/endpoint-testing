@@ -7,6 +7,14 @@ use EndpointTesting\Log\Exception;
 
 class ApacheTest extends \PHPUnit_Framework_TestCase
 {
+    public function testGetRegexPattern()
+    {
+        $sut = new \EndpointTesting\Log\File\Adapter\Apache;
+        $expected = \EndpointTesting\Log\File\Adapter\Apache::REGEX_PATTERN;
+        $result = $sut->getRegexPattern();
+        $this->assertEquals($expected, $result);
+    }
+
     /**
      * Test the EndpointTesting\Tests\Log\File\Adapter\Apache::isParsable method
      * @dataProvider provideIsParsable
@@ -36,6 +44,30 @@ class ApacheTest extends \PHPUnit_Framework_TestCase
             [false, [
                 '#Software: Microsoft Internet Information Services 7.5',
             ]],
+        ];
+    }
+
+    /**
+     * Tests the \EndpointTesting\Log\File\Adapter\Apache::clean method
+     * @dataProvider provideClean
+     */
+    public function testClean($expected, $input)
+    {
+
+        $sut = new \EndpointTesting\Log\File\Adapter\Apache;
+        $result = $sut->clean($input);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function provideClean()
+    {
+        return [
+            ['value', 'value '],
+            ['value', ' value '],
+            ['value', ' value'],
+            ['value', ' value
+
+            '],
         ];
     }
 
